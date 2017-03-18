@@ -59,6 +59,7 @@ public class Netty_Client {
     }
     
     public static void main(String[] args) throws Exception {
+        System.out.println("netty_client.Netty_Client.main()");
         new Netty_Client();
     }
 }
