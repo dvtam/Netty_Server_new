@@ -3,10 +3,16 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/C:/Users/TAM/Documents/NetBeansProjects/Netty_Server/src/Data/MessageKey.java</file>
             <file>file:/C:/Users/TAM/Documents/NetBeansProjects/Netty_Server/src/netty_server/Netty_Server.java</file>
             <file>file:/C:/Users/TAM/Documents/NetBeansProjects/Netty_Server/src/netty_client/ClientHandler.java</file>
+            <file>file:/C:/Users/TAM/Documents/NetBeansProjects/Netty_Server/src/Connect/connectDatabase.java</file>
+            <file>file:/C:/Users/TAM/Documents/NetBeansProjects/Netty_Server/src/Data/ListUsers.java</file>
             <file>file:/C:/Users/TAM/Documents/NetBeansProjects/Netty_Server/src/netty_server/ServerHandler.java</file>
+            <file>file:/C:/Users/TAM/Documents/NetBeansProjects/Netty_Server/src/Data/JSONData.java</file>
             <file>file:/C:/Users/TAM/Documents/NetBeansProjects/Netty_Server/src/netty_client/Netty_Client.java</file>
+            <file>file:/C:/Users/TAM/Documents/NetBeansProjects/Netty_Server/src/Data/Data.java</file>
+            <file>file:/C:/Users/TAM/Documents/NetBeansProjects/Netty_Server/src/Data/ListData.java</file>
         </group>
     </open-files>
 </project-private>
