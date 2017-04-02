@@ -14,16 +14,20 @@ public class ChitietChuongtrinh {
     private String thoigian;
     private String thu;
     private String noidung;
+    private String tieude;
+    private String chude;
     private int idchuongtrinh;
 
     public ChitietChuongtrinh() {
     }
 
-    public ChitietChuongtrinh(int id, String thoigian, String thu, String noidung, int idchuongtrinh) {
+    public ChitietChuongtrinh(int id, String thoigian, String thu, String noidung, String tieude, String chude, int idchuongtrinh) {
         this.id = id;
         this.thoigian = thoigian;
         this.thu = thu;
         this.noidung = noidung;
+        this.tieude = tieude;
+        this.chude = chude;
         this.idchuongtrinh = idchuongtrinh;
     }
 
@@ -59,6 +63,22 @@ public class ChitietChuongtrinh {
         this.noidung = noidung;
     }
 
+    public String getTieude() {
+        return tieude;
+    }
+
+    public void setTieude(String tieude) {
+        this.tieude = tieude;
+    }
+
+    public String getChude() {
+        return chude;
+    }
+
+    public void setChude(String chude) {
+        this.chude = chude;
+    }
+
     public int getIdchuongtrinh() {
         return idchuongtrinh;
     }
@@ -66,5 +86,6 @@ public class ChitietChuongtrinh {
     public void setIdchuongtrinh(int idchuongtrinh) {
         this.idchuongtrinh = idchuongtrinh;
     }
+
     
 }

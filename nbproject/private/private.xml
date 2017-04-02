@@ -5,10 +5,15 @@
         <group>
             <file>file:/C:/Users/TAM/Documents/NetBeansProjects/Netty_Server/src/Data/MessageKey.java</file>
             <file>file:/C:/Users/TAM/Documents/NetBeansProjects/Netty_Server/src/Data/Chuongtrinh.java</file>
+            <file>file:/C:/Users/TAM/Documents/NetBeansProjects/Netty_Server/src/netty_server/Netty_Server.java</file>
             <file>file:/C:/Users/TAM/Documents/NetBeansProjects/Netty_Server/src/Connect/connectDatabase.java</file>
             <file>file:/C:/Users/TAM/Documents/NetBeansProjects/Netty_Server/src/netty_server/ServerHandler.java</file>
+            <file>file:/C:/Users/TAM/Documents/NetBeansProjects/Netty_Server/src/Data/Thucdon.java</file>
+            <file>file:/C:/Users/TAM/Documents/NetBeansProjects/Netty_Server/src/Data/Be.java</file>
             <file>file:/C:/Users/TAM/Documents/NetBeansProjects/Netty_Server/src/Data/ChitietChuongtrinh.java</file>
             <file>file:/C:/Users/TAM/Documents/NetBeansProjects/Netty_Server/src/Data/NoidungChuongtrinh.java</file>
+            <file>file:/C:/Users/TAM/Documents/NetBeansProjects/Netty_Server/src/Notifications/Notification.java</file>
+            <file>file:/C:/Users/TAM/Documents/NetBeansProjects/Netty_Server/src/Data/Chitietthucdon.java</file>
         </group>
     </open-files>
 </project-private>

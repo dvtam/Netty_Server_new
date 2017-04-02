@@ -6,7 +6,9 @@
 package netty_server;
 
 import Connect.connectDatabase;
+import Data.Be;
 import Data.ChitietChuongtrinh;
+import Data.Chitietthucdon;
 import Data.Chuongtrinh;
 import Data.JSONData;
 import Data.ListUsers;
@@ -14,6 +16,7 @@ import Data.MessageKey;
 import Data.Data;
 import Data.ListData;
 import Data.NoidungChuongtrinh;
+import Data.Thucdon;
 import Data.UserInfos;
 import com.google.gson.Gson;
 import io.netty.channel.Channel;
@@ -24,7 +27,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,6 +50,7 @@ class ServerHandler extends SimpleChannelInboundHandler<String> {
     private ResultSet rs;
     private PreparedStatement stmt;
     private Channel channel;
+    Timer timer;
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -348,20 +355,254 @@ class ServerHandler extends SimpleChannelInboundHandler<String> {
         return idchuongtrinh;
     }
 
+    private JSONArray getBe() {
+        JSONArray listbe = new JSONArray();
+        String selectbe = "select * from tbl_Be";
+        Be be = null;
+        JSONObject jsonObject = new JSONObject();
+        JSONArray jsonarr = new JSONArray();
+        JSONObject data = null;
+
+        try {
+            stmt = con.prepareStatement(selectbe);
+            rs = stmt.executeQuery();
+
+            jsonObject.put("to", MessageKey.GETBEINFOS);
+            while (rs.next()) {
+                data = new JSONObject();
+                data.put("id", rs.getString("ID"));
+                data.put("tenbe", rs.getString("tenbe"));
+                data.put("tuoi", rs.getString("tuoi"));
+                data.put("ngaysinh", rs.getString("ngaysinh"));
+                data.put("idlop", rs.getString("idlop"));
+                jsonarr.put(data);
+            }
+            jsonObject.put("data", jsonarr);
+            listbe.put(jsonObject);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return listbe;
+    }
+      private boolean insetNewbe(String json){
+          Be be = null;
+        boolean success = false;
+        String sql = "INSERT INTO tbl_Be(tenbe, tuoi, ngaysinh, idlop) VALUES(?,?,?,?)";
+        if (json != null && json.length() > 0) {
+            try {
+                JSONArray jsonArray = new JSONArray(json);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject object = jsonArray.getJSONObject(i);
+                    JSONObject rs = object.getJSONObject("data");
+                    try {
+                        be = new Be(rs.getInt("id"),
+                                rs.getString("tenbe"),
+                                rs.getInt("tuoi"),
+                                rs.getString("ngaysinh"),
+                                rs.getInt("idlop"));
+
+                    } catch (JSONException e) {
+                    }
+                }
+                stmt = con.prepareStatement(sql);
+                // set gia tri bien
+                stmt.setString(1, be.getTenbe());
+                stmt.setInt(2, be.getTuoi());
+                stmt.setString(3, be.getNgaysinh());
+                stmt.setInt(4, be.getIdlop());
+                stmt.executeUpdate();
+                stmt.close();
+                success = true;
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (SQLException ex) {
+                success = false;
+            }
+        }
+        return success;
+      }
+    private boolean updateBe(String json) {
+        Be be = null;
+        boolean success = false;
+        String sql = "UPDATE tbl_Be set tenbe=?, tuoi=?, ngaysinh=?, idlop=? where ID=?";
+        if (json != null && json.length() > 0) {
+            try {
+                JSONArray jsonArray = new JSONArray(json);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject object = jsonArray.getJSONObject(i);
+                    JSONObject rs = object.getJSONObject("data");
+                    try {
+                        be = new Be(rs.getInt("id"),
+                                rs.getString("tenbe"),
+                                rs.getInt("tuoi"),
+                                rs.getString("ngaysinh"),
+                                rs.getInt("idlop"));
+
+                    } catch (JSONException e) {
+                    }
+                }
+                stmt = con.prepareStatement(sql);
+                // set gia tri bien
+                stmt.setString(1, be.getTenbe());
+                stmt.setInt(2, be.getTuoi());
+                stmt.setString(3, be.getNgaysinh());
+                stmt.setInt(4, be.getIdlop());
+                stmt.setInt(5, be.getId());
+
+                stmt.executeUpdate();
+                stmt.close();
+                success = true;
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (SQLException ex) {
+                success = false;
+            }
+        }
+        return success;
+    }
+
+    private void getChitietthucdon(int id, String thu) {
+        JSONArray arrchitiet = null;
+        String getcttd = "select tbl_Thucdon.ID as idtd,tbl_Chitietthucdon.ID as id,tbl_Chitietthucdon.luatuoi as luatuoi,tbl_Chitietthucdon.tenbua as tenbua,tbl_Chitietthucdon.thu as thu,tbl_Chitietthucdon.IDThucdon as idtdct,tbl_Monan.tenmon as tenmon from tbl_Thucdon inner join tbl_Chitietthucdon on tbl_Thucdon.ID=tbl_Chitietthucdon.IDThucdon inner join tbl_Monan on tbl_Chitietthucdon.IDMonan=tbl_Monan.ID where tbl_Chitietthucdon.IDThucdon=? and tbl_Chitietthucdon.thu=?";
+        JSONObject obj = new JSONObject();
+        JSONObject data = null;
+        try {
+            stmt = con.prepareStatement(getcttd);
+            if (id != 0) {
+                stmt.setInt(1, id);
+                stmt.setString(2, thu);
+                rs = stmt.executeQuery();
+                while (rs.next()) {
+                    data = new JSONObject();
+                    data.put("id", rs.getInt("id"));
+                    data.put("luatuoi", rs.getString("luatuoi"));
+                    data.put("thu", rs.getString("thu"));
+                    data.put("tenbua", rs.getString("tenbua"));
+                    data.put("tenmon", rs.getString("tenmon"));
+                    data.put("idthucdon", rs.getInt("idtdct"));
+
+                    obj.put("data", data);
+                    obj.put("to", MessageKey.GETTHUCDONCHITIET);
+                    arrchitiet = new JSONArray();
+                    arrchitiet.put(obj);
+                    System.out.println(arrchitiet);
+                    channel.writeAndFlush(arrchitiet.toString());
+
+                }
+
+            } else {
+                arrchitiet.put(new JSONObject().put("to", MessageKey.GETTHUCDON_FAIL));
+                stmt.close();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+//lấy dữ liệu từ bảng tbl_Thucdon đóng gói gửi cho client 
+
+    private JSONArray getThucdon(int id) {
+        String getthucdon = "SELECT * FROM tbl_Thucdon where ID=?";
+        String getcttd = "select tbl_Thucdon.ID as idtd,tbl_Chitietthucdon.ID as id,tbl_Chitietthucdon.luatuoi as luatuoi,tbl_Chitietthucdon.tenbua as tenbua,tbl_Chitietthucdon.thu as thu,tbl_Chitietthucdon.IDThucdon as idtdct,tbl_Monan.tenmon as tenmon from tbl_Thucdon inner join tbl_Chitietthucdon on tbl_Thucdon.ID=tbl_Chitietthucdon.IDThucdon inner join tbl_Monan on tbl_Chitietthucdon.IDMonan=tbl_Monan.ID where tbl_Chitietthucdon.IDThucdon=?";
+        Thucdon thucdon = null;
+        Chitietthucdon chitietthucdon = null;
+        JSONArray listthucdon = new JSONArray();
+        JSONArray arrlistcttd = new JSONArray();
+        JSONObject td = new JSONObject();
+        JSONObject cttd = new JSONObject();
+        ArrayList<Chitietthucdon> listcttd = new ArrayList<Chitietthucdon>();
+        int idthucdon = 0;
+        try {
+            stmt = con.prepareStatement(getcttd);
+            if (id != 0) {
+                stmt.setInt(1, id);
+                rs = stmt.executeQuery();
+                while (rs.next()) {
+                    idthucdon = rs.getInt("idtd");
+                    chitietthucdon = new Chitietthucdon(rs.getInt("id"), rs.getString("thu"), rs.getString("tenbua"), rs.getString("luatuoi"), rs.getInt("idtdct"));
+                    listcttd.add(chitietthucdon);
+
+                }
+                stmt = con.prepareStatement(getthucdon);
+                stmt.setInt(1, idthucdon);
+                rs = stmt.executeQuery();
+                while (rs.next()) {
+                    thucdon = new Thucdon(rs.getInt("ID"), rs.getString("ngaybatdau"), rs.getString("ngayketthuc"), rs.getInt("IDNguoidung"));
+                }
+
+                td.put("id", thucdon.getId());
+                td.put("ngaybatdau", thucdon.getNgaybatdau());
+                td.put("ngayketthuc", thucdon.getNgayketthuc());
+                td.put("idnguoidung", thucdon.getIdnguoidung());
+                JSONObject data = new JSONObject();
+                data.put("to", MessageKey.GETTHUCDON);
+                data.put("data", td);
+                listthucdon.put(data);
+
+            } else {
+                listthucdon.put(new JSONObject().put("to", MessageKey.GETTHUCDON_FAIL));
+                stmt.close();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println(listthucdon.toString());
+        return listthucdon;
+    }
+
+    private void getChitietchuongtrinh(int id, String thu) {
+        JSONArray arrchitiet = null;
+        String getctct = "select tbl_Chuongtrinh.ID as idct,tbl_Chitietchuongtrinh.ID as id,tbl_Chitietchuongtrinh.thoigian as thoigian,tbl_Chitietchuongtrinh.noidung as noidung,tbl_Chitietchuongtrinh.thu as thu ,tbl_Chitietchuongtrinh.tieude as tieude,tbl_Chitietchuongtrinh.chude as chude,tbl_Chitietchuongtrinh.IDChuongtrinh as idctr from tbl_Chuongtrinh inner join tbl_Chitietchuongtrinh on tbl_Chuongtrinh.ID=tbl_Chitietchuongtrinh.IDChuongtrinh where tbl_Chitietchuongtrinh.IDChuongtrinh=? and tbl_Chitietchuongtrinh.thu=?";
+        JSONObject obj = new JSONObject();
+        JSONObject data = null;
+        try {
+            stmt = con.prepareStatement(getctct);
+            if (id != 0) {
+                stmt.setInt(1, id);
+                stmt.setString(2, thu);
+                rs = stmt.executeQuery();
+                while (rs.next()) {
+                    data = new JSONObject();
+                    data.put("id", rs.getInt("id"));
+                    data.put("thoigian", rs.getString("thoigian"));
+                    data.put("thu", rs.getString("thu"));
+                    data.put("noidung", rs.getString("noidung"));
+                    data.put("tieude", rs.getString("tieude"));
+                    data.put("chude", rs.getString("chude"));
+                    data.put("idchuongtrinh", rs.getInt("idctr"));
+                    obj.put("data", data);
+                    obj.put("to", MessageKey.GETCHUONGTRINHCHITIET);
+                    arrchitiet = new JSONArray();
+                    arrchitiet.put(obj);
+                    System.out.println(arrchitiet);
+                    channel.writeAndFlush(arrchitiet.toString());
+
+                }
+
+            } else {
+                arrchitiet.put(new JSONObject().put("to", MessageKey.GETCHUONGTRINH_FAIL));
+                stmt.close();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     private JSONArray getChuongtrinh(int id) {
         String getchuongtrinh = "SELECT * FROM tbl_Chuongtrinh where ID=?";
-        String getnoidungct = "select tbl_Chuongtrinh.ID as idct,tbl_Noidungchuongtrinh.ID as id,tbl_Noidungchuongtrinh.tieudeamnhac as tieudeamnhac,tbl_Noidungchuongtrinh.noidungamnhac as noidungamnhac,tbl_Noidungchuongtrinh.tieudevanhoc as tieudevanhoc,tbl_Noidungchuongtrinh.noidungvanhoc as noidungvanhoc from tbl_Chuongtrinh inner join tbl_Noidungchuongtrinh on tbl_Chuongtrinh.ID=tbl_Noidungchuongtrinh.IDChuongtrinh where tbl_Chuongtrinh.ID=?";
-        String getctct = "select tbl_Chuongtrinh.ID as idct,tbl_Chitietchuongtrinh.ID as id,tbl_Chitietchuongtrinh.thoigian as thoigian,tbl_Chitietchuongtrinh.noidung as noidung,tbl_Chitietchuongtrinh.thu as thu ,tbl_Chitietchuongtrinh.IDChuongtrinh as idctr from tbl_Chuongtrinh inner join tbl_Chitietchuongtrinh on tbl_Chuongtrinh.ID=tbl_Chitietchuongtrinh.IDChuongtrinh where tbl_Chitietchuongtrinh.IDChuongtrinh=?";
+        String getctct = "select tbl_Chuongtrinh.ID as idct,tbl_Chitietchuongtrinh.ID as id,tbl_Chitietchuongtrinh.thoigian as thoigian,tbl_Chitietchuongtrinh.noidung as noidung,tbl_Chitietchuongtrinh.thu as thu ,tbl_Chitietchuongtrinh.tieude as tieude,tbl_Chitietchuongtrinh.chude as chude,tbl_Chitietchuongtrinh.IDChuongtrinh as idctr from tbl_Chuongtrinh inner join tbl_Chitietchuongtrinh on tbl_Chuongtrinh.ID=tbl_Chitietchuongtrinh.IDChuongtrinh where tbl_Chitietchuongtrinh.IDChuongtrinh=?";
         Chuongtrinh chuongtrinh = null;
         ChitietChuongtrinh chitietChuongtrinh = null;
-        NoidungChuongtrinh noidungChuongtrinh = null;
         JSONArray listchuongtrinh = new JSONArray();
         JSONArray arrlistctct = new JSONArray();
-        JSONArray arrlistndct = new JSONArray();
         JSONObject ct = new JSONObject();
+        JSONObject ctct = new JSONObject();
         ArrayList<ChitietChuongtrinh> listctct = new ArrayList<ChitietChuongtrinh>();
-        ArrayList<NoidungChuongtrinh> listndct = new ArrayList<NoidungChuongtrinh>();
-        int idchuongtrinh = 1;
+        int idchuongtrinh = 0;
         try {
             stmt = con.prepareStatement(getctct);
             if (id != 0) {
@@ -369,41 +610,30 @@ class ServerHandler extends SimpleChannelInboundHandler<String> {
                 rs = stmt.executeQuery();
                 while (rs.next()) {
                     idchuongtrinh = rs.getInt("idct");
-                    chitietChuongtrinh = new ChitietChuongtrinh(rs.getInt("id"), rs.getString("thoigian"), rs.getString("thu"), rs.getString("noidung"), rs.getInt("idctr"));
+                    chitietChuongtrinh = new ChitietChuongtrinh(rs.getInt("id"), rs.getString("thoigian"), rs.getString("thu"), rs.getString("noidung"), rs.getString("tieude"), rs.getString("chude"), rs.getInt("idctr"));
                     listctct.add(chitietChuongtrinh);
+
+//                    arrlistctct.put(chitietChuongtrinh);
                 }
-                arrlistctct.put(listctct);
-//            System.out.println(arrlistctct.toString());
-                stmt = con.prepareStatement(getnoidungct);
-                stmt.setInt(1, idchuongtrinh);
-                rs = stmt.executeQuery();
-                while (rs.next()) {
-                    noidungChuongtrinh = new NoidungChuongtrinh(rs.getInt("ID"), rs.getString("tieudeamnhac"), rs.getString("noidungamnhac"), rs.getString("tieudevanhoc"), rs.getString("noidungvanhoc"), rs.getInt("idct"));
-                    listndct.add(noidungChuongtrinh);
-                }
-                arrlistndct.put(listndct);
-//            System.out.println(arrlistndct.toString());
+//                arrlistctct.put(listctct);
                 stmt = con.prepareStatement(getchuongtrinh);
                 stmt.setInt(1, idchuongtrinh);
                 rs = stmt.executeQuery();
                 while (rs.next()) {
-                    chuongtrinh = new Chuongtrinh(rs.getInt("ID"), rs.getString("chudiem"), rs.getString("chude"), rs.getString("ngaybatdau"), rs.getString("ngayketthuc"), rs.getInt("IDNguoidung"), listctct, listndct);
-
+                    chuongtrinh = new Chuongtrinh(rs.getInt("ID"), rs.getString("chudiem"), rs.getString("chude"), rs.getString("ngaybatdau"), rs.getString("ngayketthuc"), rs.getInt("IDNguoidung"));
                 }
 
                 ct.put("id", chuongtrinh.getId());
                 ct.put("chudiem", chuongtrinh.getChudiem());
                 ct.put("chude", chuongtrinh.getChude());
                 ct.put("ngaybatdau", chuongtrinh.getNgaybatdau());
-                ct.put("ngayketthuc", chuongtrinh.getNgsyketthuc());
+                ct.put("ngayketthuc", chuongtrinh.getNgayketthuc());
                 ct.put("idnguoidung", chuongtrinh.getIdnguoidung());
-                ct.put("listchitietchuongtrinh", arrlistctct);
-                ct.put("listnoidungchuongtrinh", arrlistndct);
                 JSONObject data = new JSONObject();
                 data.put("to", MessageKey.GETCHUONGTRINH);
                 data.put("data", ct);
                 listchuongtrinh.put(data);
-                
+
             } else {
                 listchuongtrinh.put(new JSONObject().put("to", MessageKey.GETCHUONGTRINH_FAIL));
                 stmt.close();
@@ -417,7 +647,7 @@ class ServerHandler extends SimpleChannelInboundHandler<String> {
     }
 
     private String getdate(String json) {
-        String date="";
+        String date = "";
         if (json != null && json.length() > 0) {
             try {
                 JSONArray jsonArray = new JSONArray(json);
@@ -430,6 +660,22 @@ class ServerHandler extends SimpleChannelInboundHandler<String> {
             }
         }
         return date;
+    }
+
+    private String getthu(String json) {
+        String thu = "";
+        if (json != null && json.length() > 0) {
+            try {
+                JSONArray jsonArray = new JSONArray(json);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject object = jsonArray.getJSONObject(i);
+                    thu = object.getString("thu");
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return thu;
     }
 
     @Override
@@ -489,8 +735,12 @@ class ServerHandler extends SimpleChannelInboundHandler<String> {
                 }
                 break;
             case MessageKey.GETCHUONGTRINH:
-                    JSONArray chuongtrinh=getChuongtrinh(getIDfromdate(getdate(msg)));
-                    channel.writeAndFlush(chuongtrinh.toString());
+                getChitietchuongtrinh(getIDfromdate(getdate(msg)), getthu(msg));
+                JSONArray chuongtrinh = getChuongtrinh(getIDfromdate(getdate(msg)));
+                channel.writeAndFlush(chuongtrinh.toString());
+                channel.flush();
+                channel.writeAndFlush(toJSON(MessageKey.FINISH).toString());
+
                 break;
             default:
                 break;

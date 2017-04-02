@@ -31,4 +31,16 @@ public class MessageKey {
     public static final String UPDATEPASS_FAIL = "UPDATEPASSFAIL";
     public static final String GETCHUONGTRINH = "GETCHUONGTRINH";
     public static final String GETCHUONGTRINH_FAIL = "GETCHUONGTRINH_FAIL";
+    public static final String GETCHUONGTRINHCHITIET = "GETCHUONGTRINHCHITIET";
+    public static final String FINISH = "FINISH";
+    public static final String GETTHUCDON = "GETTHUCDON";
+    public static final String GETTHUCDONCHITIET = "GETTHUCDONCHITIET";
+    public static final String GETTHUCDON_FAIL = "GETTHUCDON_FAIL";
+    public static final String GETBEINFOS = "GETBEINFOS";
+    public static final String GETBEINFOS_FAIL = "GETBEINFOS_FAIL";
+    public static final String UPDATEBE = "UPDATEBE";
+    public static final String UPDATEBE_FAIL = "UPDATEBE_FAIL";
+   
+    
 }
+
